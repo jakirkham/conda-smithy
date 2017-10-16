@@ -46,7 +46,8 @@ def travis_headers():
     headers = {
                # If the user-agent isn't defined correctly, we will recieve a 403.
                'User-Agent': 'Travis/1.0',
-               'Accept': 'application/vnd.travis-ci.2+json',
+               'Travis-API-Version': 'application/json',
+               'Accept': 'application/json',
                'Content-Type': 'application/json'
                }
     endpoint = 'https://api.travis-ci.org'
@@ -198,7 +199,7 @@ def travis_wait_until_synced(user, ignore=False):
 def travis_get_repo_info(user, project, show_error=False):
     headers = travis_headers()
     endpoint = 'https://api.travis-ci.org'
-    url = '{}/repos/{user}/{project}'.format(endpoint, user=user, project=project)
+    url = '{}/repo/{user}%2F{project}'.format(endpoint, user=user, project=project)
     response = requests.get(url, headers=headers)
     try:
         response.raise_for_status()
