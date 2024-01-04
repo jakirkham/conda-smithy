@@ -42,7 +42,7 @@ jobs:
         CI: azure
         flow_run_id: azure_$(Build.BuildNumber).$(System.JobAttempt)
         remote_url: $(Build.Repository.Uri)
-        sha: $(Build.SourceVersion)
+        GIT_COMMIT_SHA: $(Build.SourceVersion)
         UPLOAD_PACKAGES: $(UPLOAD_PACKAGES)
         UPLOAD_TEMP: $(UPLOAD_TEMP)
 {%- if upload_on_branch %}
