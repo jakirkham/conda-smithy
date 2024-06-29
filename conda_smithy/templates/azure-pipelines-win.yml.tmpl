@@ -11,24 +11,28 @@ jobs:
       fetchDepth: {{ clone_depth }}
 {%- endif %}
 {%- if azure.free_disk_space %}
-    - script: |
+    - powershell: |
 {%- if (azure.free_disk_space == true) or ('cache' in azure.free_disk_space) %}
-        set CLEANUP_DIRS=^
-        C:\hostedtoolcache\windows;^
-        ;
-
-        mkdir C:\empty
-        for %%f in (%CLEANUP_DIRS:;= %) do (
-            if not [%%f] == [] (
-                echo Removing %%f
-                dir %%f
-                robocopy /mir /mt /zb /ns /nc /nfl /ndl /np /njh /njs C:\empty %%f > nul 2>&1
-                rmdir /q %%f
-            )
+        $cleanup_dirs = @(
+            "C:\hostedtoolcache\windows"
         )
-        rmdir /q C:\empty
-{%- endif %}
+
+        $robocopy_flags = @(
+            "/purge", "/r:0", "/w:0", "/nocopy", "/mt", "/zb"
+            "/ns", "/nc", "/np", "/nfl", "/ndl", "/njh", "/njs"
+        )
+        $empty_dir = "C:\empty"
+        mkdir $empty_dir 2>&1>$null
+        foreach ($d in $cleanup_dirs) {
+            if ($d -and (Test-Path $d)) {
+                echo "Removing $d"
+                robocopy @robocopy_flags $empty_dir $d 2>&1>$null
+                Remove-Item $d -Force
+            }
+        }
+        Remove-Item $empty_dir -Force
         wmic logicaldisk get size,freespace,caption
+{%- endif %}
       displayName: Manage disk space
 {%- endif %}
 {%- for choco_pkg in choco %}
